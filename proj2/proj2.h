@@ -11,6 +11,7 @@
 #define sharedMemSize 1024
 #define sharedMemKey 1717
 
+#define semaphoresCt 6
   
 typedef struct {
   int shmid;
@@ -19,8 +20,7 @@ typedef struct {
   int reindeerAway;
   int elvesWaiting;
   int elvesInside;
-  sem_t reindeerMutex;
-  sem_t elfMutex;
+  sem_t sem[semaphoresCt];
 } Mem;
 
 
