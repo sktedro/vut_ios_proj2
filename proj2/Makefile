@@ -6,11 +6,10 @@ ZIPDEST=proj2.zip
 default: all
 
 all:
-	gcc -std=gnu99 $(CFILE) $(LIBS) -Wall -Wextra -Werror -pedantic -o $(PROGDEST) -pthread -lrt -g
+	gcc -std=gnu99 $(CFILE) $(LIBS) -Wall -Wextra -Werror -pedantic -o $(PROGDEST) -pthread
 
 run: all
-	#./$(PROGDEST) 5 5 10 10
-	./$(PROGDEST) 20 5 10 10
+	./$(PROGDEST) 20 5 0 50
 
 test: all
 	cp p2test/p2test.py ./
