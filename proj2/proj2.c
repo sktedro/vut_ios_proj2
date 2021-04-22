@@ -62,7 +62,7 @@ void santaFn(Mem *shm, int fd, int elves){
     }
 
 
-    //If Santa is woken up by the elves, wait for them to leave
+    //If Santa is woken up by the elves
     else if(shm->elvesInside != 0){
       //Print that the santa is about to help the elves
       sem_wait(&(shm->sem[resMutex]));
@@ -109,7 +109,6 @@ void elfFn(int elfIndepWork, Mem *shm, int elfID, int fd){
     //Calculate random value between 0 and elfIndepWork and let the elf work
     if(elfIndepWork != 0){
       usleep(1000*(rand() % (elfIndepWork + 1)));
-      //printf("Sleeping for %d\n", rand()%(elfIndepWork+1)); //TODO
     }
 
     //Wait for santa to help the elf (if the workshop is open)
@@ -217,7 +216,6 @@ void reindeerFn(int reindeerVac, Mem *shm, int reindeerID, int fd){
   sem_post(&(shm->sem[resMutex]));
   sem_post(&(shm->sem[hitchReindeer]));
 
-
   exit(0);
 }
 
@@ -244,6 +242,10 @@ int main(int argc, char **argv){
 
   //All the PIDs will be saved to this variable
   pid_t *pids = malloc((elves + reindeer + 1)*sizeof(pid_t));
+  if(pids == NULL){
+    fprintf(stderr, "Could not allocate necessary memory. Exiting.\n");
+    return 1;
+  }
   for(int i = 0; i < (elves + reindeer + 1); i++){
     pids[i] = -2; //-2 is taken as a initial value
   }
@@ -252,6 +254,7 @@ int main(int argc, char **argv){
   Mem *shm = sharedMem_init();
   if(shm == NULL){
     fprintf(stderr, "Shared memory could not be created. Exiting.\n");
+    free(pids);
     return 1;
   }
   shm->reindeerAway = reindeer;
@@ -270,6 +273,7 @@ int main(int argc, char **argv){
     if(!sharedMem_destroy(shm)){
       fprintf(stderr, "Destroying the shared memory failed.\n");
     }
+    free(pids);
     return 1;
   }
 
@@ -309,7 +313,7 @@ int main(int argc, char **argv){
     savePID(pids, child_pid);
   }
 
-  //Wait for all child processes to exit
+  //Wait for all child processes to exit if no error was encountered
   if(err == 0){
     while(wait(NULL) != -1);
   }
@@ -342,6 +346,9 @@ cleanup:
     free(pids);
     return 1;
   }
+
+  //Free the memory allocated for PIDs
+  free(pids);
 
   return 0;
 }
