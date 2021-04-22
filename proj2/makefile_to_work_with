@@ -9,6 +9,14 @@ default: all
 all:
 	gcc -std=gnu99 $(CFILE) $(LIBS) -Wall -Wextra -Werror -pedantic -o $(PROGDEST) -pthread
 
+run: all
+	./$(PROGDEST) 20 5 0 50
+
+test: all
+	cp p2test/p2test.py ./
+	-python3 p2test.py
+	rm ./p2test.py
+
 zip:
 	zip $(ZIPDEST) $(CFILE) $(LIBS) Makefile
 
