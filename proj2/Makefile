@@ -2,6 +2,7 @@ CFILE=proj2.c
 LIBS=proj2.h
 PROGDEST=proj2
 ZIPDEST=proj2.zip
+LOGFILE=proj2.out
 
 default: all
 
@@ -16,8 +17,8 @@ test: all
 	-python3 p2test.py
 	rm ./p2test.py
 
-zip: clean
-	zip $(ZIPDEST) ./*
+zip:
+	zip $(ZIPDEST) $(CFILE) $(LIBS) Makefile
 
 clean:
-	rm -f $(ZIPDEST) $(PROGDEST)
+	rm -f $(ZIPDEST) $(PROGDEST) $(LOGFILE)
