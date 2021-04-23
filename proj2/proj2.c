@@ -1,18 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <time.h>
-#include <semaphore.h>
-#include <unistd.h>
 #include <pthread.h>
 #include <fcntl.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
 #include "proj2.h"
 
@@ -282,11 +273,12 @@ int main(int argc, char **argv){
   //Elves
   for(int i = 0; i < elves; i++){
     if((child_pid = fork()) == 0){
+      free(pids); //For some reason, the child must free the pids, too
       elfFn(elfIndepWork, shm, i + 1, fd);
     }
     else if(child_pid < 0){
       fprintf(stderr, "Could not create a child process.\n");
-      goto cleanup;
+      err = 1;
     }else{
       savePID(pids, child_pid);
     }
@@ -294,21 +286,23 @@ int main(int argc, char **argv){
   //Reindeer
   for(int i = 0; i < reindeer; i++){
     if((child_pid = fork()) == 0){
+      free(pids);
       reindeerFn(reindeerVac, shm, i + 1, fd);
     }
     else if(child_pid < 0){
       fprintf(stderr, "Could not create a child process.\n");
-      goto cleanup;
+      err = 1;
     }else{
       savePID(pids, child_pid);
     }
   }
   //Santa
   if((child_pid = fork()) == 0){
+    free(pids);
     santaFn(shm, fd, elves);
   }else if(child_pid < 0){
     fprintf(stderr, "Could not create a child process.\n");
-    goto cleanup;
+    err = 1;
   }else{
     savePID(pids, child_pid);
   }
@@ -317,8 +311,6 @@ int main(int argc, char **argv){
   if(err == 0){
     while(wait(NULL) != -1);
   }
-
-cleanup:
 
   //Close the file
   if(close(fd) == -1){
