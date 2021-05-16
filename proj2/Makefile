@@ -12,5 +12,12 @@ all:
 zip:
 	zip $(ZIPDEST) $(CFILE) $(LIBS) Makefile
 
+
+test: all
+	cp p2test/p2test.py ./
+	-python3 p2test.py
+	rm ./p2test.py
+
+
 clean:
 	rm -f $(ZIPDEST) $(PROGDEST) $(LOGFILE)
